@@ -131,6 +131,8 @@ export type MarkdownViewOptions = Pick<ParseOptions, "gfm" | "footnotes" | "synt
   /** Replaces the built-in TeX renderer. A string result is trusted MathML. */
   mathRenderer?: MathRenderer | null;
   links?: LinkPolicy;
+  /** Show a single newline inside a paragraph as a line break. Display only; same option as the core's renderer. */
+  softBreak?: "br";
   classPrefix?: string;
   /** Classes added per node type, e.g. `{ table: "my-table", paragraph: "mb-4" }`. */
   classNames?: Partial<Record<string, string>>;

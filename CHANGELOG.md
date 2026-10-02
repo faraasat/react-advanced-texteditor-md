@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 0.2.1 (2026-10-03)
+
+- `MarkdownView` accepts `softBreak="br"`: a single newline inside a paragraph shows as a line break (display only; the Markdown is unchanged). `MarkdownEditor` forwards the same option to the core.
+- Requires `advanced-texteditor-md` `^0.2.1` (per-person chip colour and badge, theming for menus appended to `<body>`, narrow-toolbar overflow, `insertMarkdown` without focus, `getValue()` always current).
+
 ## 0.2.0 (2026-10-02)
 
 - Requires `advanced-texteditor-md` `^0.2.0` (large-document speed fix, definition lists, tasks, dictation and present/reader subpaths).

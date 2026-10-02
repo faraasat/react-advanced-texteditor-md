@@ -477,3 +477,18 @@ describe("link previews on the client view", () => {
     expect(resolve).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("softBreak", () => {
+  it('shows a single newline as <br> with softBreak: "br", and matches the core renderer', () => {
+    const md = "line one\nline two";
+    const html = renderToStaticMarkup(<PureView markdown={md} softBreak="br" />);
+    expect(html).toContain("line one<br");
+    expect(html).toContain("line two");
+    expect(renderHtml(md, { softBreak: "br" })).toContain("<br");
+  });
+
+  it("leaves the newline alone by default", () => {
+    const html = renderToStaticMarkup(<PureView markdown={"line one\nline two"} />);
+    expect(html).not.toContain("<br");
+  });
+});

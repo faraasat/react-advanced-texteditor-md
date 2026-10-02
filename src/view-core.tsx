@@ -30,6 +30,7 @@ import type { ChipNode, MarkdownViewOptions, ViewComponents } from "./types";
 export type ResolvedView = {
   parse: ParseOptions;
   prefix: string;
+  softBreak?: "br";
   links?: LinkPolicy;
   classNames: Partial<Record<string, string>>;
   highlight: NonNullable<MarkdownViewOptions["highlight"]> | null;
@@ -59,6 +60,7 @@ export function resolveView(o: MarkdownViewOptions = {}): ResolvedView {
   return {
     parse: { gfm: o.gfm, math: parseMath, footnotes: o.footnotes, syntax: o.syntax, chipSchemes },
     prefix: o.classPrefix ?? "atm",
+    softBreak: o.softBreak,
     links: o.links,
     classNames: o.classNames ?? {},
     highlight: o.highlight ?? null,
@@ -225,7 +227,10 @@ function chipEl(n: Chip, c: Ctx, key: number): ReactElement {
 function inline(n: InlineNode, c: Ctx, key: number): ReactNode {
   switch (n.type) {
     case "text":
-      return n.value;
+      // `softBreak: "br"` shows a single newline as a line break (display only; the Markdown is unchanged).
+      return c.r.softBreak === "br" && n.value.includes("\n")
+        ? h(Fragment, { key }, ...n.value.split("\n").flatMap((t, i) => (i ? [h("br", { key: "b" + i, "data-atm-soft": "" }), t] : [t])))
+        : n.value;
     case "emphasis":
       return node(c, "emphasis", n, key, "em", cls(c, "em", "emphasis"), {}, inlines(n.children, c));
     case "strong":
