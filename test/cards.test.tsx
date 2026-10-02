@@ -15,7 +15,7 @@ vi.mock("advanced-texteditor-md", async (importOriginal) => {
 beforeEach(() => resetEditors());
 const wait = (ms = 80) => act(() => new Promise<void>((r) => setTimeout(r, ms)));
 const until = async (f: () => unknown) => {
-  for (let i = 0; i < 60 && !f(); i++) await wait(25);
+  for (let i = 0; i < 200 && !f(); i++) await wait(25);
 };
 const card = () => document.querySelector<HTMLElement>(".atm-chip-card");
 const MD = "Hi [@Jane](mention:person/u1) and [@Bob](mention:person/u2).";
@@ -39,9 +39,9 @@ describe("MarkdownView cards", () => {
     const { container } = render(<MarkdownView markdown={MD} cards={{ getCard, delayMs: 0 }} />);
     await wait();
     const chip = container.querySelector<HTMLElement>(".atm-chip")!;
+    await until(() => chip.getAttribute("tabindex")); // the card code is a lazy chunk: wait for it, not for a fixed time
     expect(chip.getAttribute("tabindex")).toBe("0");
     expect(chip.hasAttribute("data-atm-interactive")).toBe(true);
-    await until(() => chip.getAttribute("tabindex"));
     act(() => chip.focus());
     await until(card);
     expect(card()?.textContent).toContain("Jane Doe");
