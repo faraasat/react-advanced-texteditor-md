@@ -1,0 +1,58 @@
+name: CI
+
+# This package depends on the PUBLISHED `advanced-texteditor-md` (a regular dependency, ^0.1.0), so every install here
+# comes from the npm registry. Until the core is published, `npm install` fails with E404 and this workflow is red: publish
+# the core first. There is no lockfile for the same reason (see CONTRIBUTING.md).
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Typecheck, test, build & size (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # Installs the core from the registry.
+      - name: Install dependencies
+        run: npm install
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm run test:run
+
+      - name: Build
+        run: npm run build
+
+      # Gzip budget of the wrapper alone: main <= 6 kB, view <= 5 kB.
+      - name: Size check
+        run: npm run size
+
+      # The built entries import in Node with no DOM, and the "use client" directive is where it should be.
+      - name: Check Next.js compatibility
+        run: npm run check:next
+
+      - name: Verify package contents
+        run: npm pack --dry-run

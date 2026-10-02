@@ -1,3 +1,37 @@
+<!-- site:skip -->
+<p align="center">
+  <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/.github/assets/banner.svg" alt="react-advanced-texteditor-md" width="100%" />
+</p>
+
+<p align="center">
+  React bindings for a WYSIWYG editor that <b>stores Markdown</b>: <code>&lt;MarkdownEditor /&gt;</code>, a server-component friendly <code>&lt;MarkdownView /&gt;</code>, and hooks.
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/react-advanced-texteditor-md"><img alt="npm version" src="https://img.shields.io/npm/v/react-advanced-texteditor-md?color=cb3837&label=npm&logo=npm"></a>
+  <a href="https://www.npmjs.com/package/react-advanced-texteditor-md"><img alt="downloads" src="https://img.shields.io/npm/dm/react-advanced-texteditor-md?color=cb3837&label=downloads"></a>
+  <a href="https://bundlephobia.com/package/react-advanced-texteditor-md"><img alt="bundle size" src="https://img.shields.io/bundlephobia/minzip/react-advanced-texteditor-md?label=minzipped"></a>
+  <a href="https://github.com/faraasat/react-advanced-texteditor-md/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/faraasat/react-advanced-texteditor-md/actions/workflows/ci.yml/badge.svg"></a>
+  <img alt="types" src="https://img.shields.io/badge/types-included-3178c6?logo=typescript&logoColor=white">
+  <img alt="one dependency: the core" src="https://img.shields.io/badge/dependencies-1%20(the%20core)-brightgreen">
+  <a href="https://github.com/faraasat/react-advanced-texteditor-md/blob/main/LICENSE"><img alt="license" src="https://img.shields.io/npm/l/react-advanced-texteditor-md?color=blue"></a>
+</p>
+
+<p align="center">
+  <a href="https://faraasat.github.io/react-advanced-texteditor-md/"><b>Live demo</b></a> ·
+  <a href="https://www.npmjs.com/package/react-advanced-texteditor-md">npm</a> ·
+  <a href="https://github.com/faraasat/advanced-texteditor-md">Core editor</a> ·
+  <a href="https://github.com/faraasat/react-advanced-texteditor-md/blob/main/CHANGELOG.md">Changelog</a> ·
+  <a href="https://github.com/faraasat/react-advanced-texteditor-md/issues">Issues</a>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/hero.png" alt="The live demo site" width="860" />
+</p>
+
+---
+<!-- /site:skip -->
+
 # react-advanced-texteditor-md
 
 React bindings for [advanced-texteditor-md](https://github.com/faraasat/advanced-texteditor-md): a dependency-free WYSIWYG
@@ -16,10 +50,26 @@ server-component build), and three hooks.
   download.
 
 ```bash
-npm i react-advanced-texteditor-md
+npm i react-advanced-texteditor-md      # or: pnpm add / yarn add / bun add
 ```
 
+See it first in the **[live demo](https://faraasat.github.io/react-advanced-texteditor-md/)**: eleven demos, each with the exact code beside it.
+
 `advanced-texteditor-md` is a regular dependency and installs with it. `react` and `react-dom` (17 or newer) are peer dependencies.
+
+<!-- site:skip -->
+## Screenshots
+
+From the [live demo](https://faraasat.github.io/react-advanced-texteditor-md/); every demo shows its own source beside it.
+
+| | |
+|---|---|
+| <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/demo-controlled.png" alt="The controlled demo with its code" /><br><sub>Controlled editor, with the code that runs it</sub> | <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/mentions-menu.png" alt="The mention menu" /><br><sub>Mentions with badges and colours</sub> |
+| <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/demo-server.png" alt="A MarkdownView rendered by a Server Component" /><br><sub><code>MarkdownView</code> in a Server Component (dark mode)</sub> | <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/demo-tailwind.png" alt="The editor styled with Tailwind utility classes" /><br><sub>Tailwind v4 through <code>classNames</code></sub> |
+| <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/demo-theming.png" alt="Theming demo with the sepia theme" /><br><sub>Themes and custom tokens</sub> | <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/uploads.png" alt="Uploads accepted and rejected by the allow and deny lists" /><br><sub>Uploads: allow and deny lists</sub> |
+| <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/demo-comments.png" alt="A comment box in the bottom-bar layout" /><br><sub>A comment box with React children in the actions slot</sub> | <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/mobile-editor.png" alt="The demo on a phone" width="260" /><br><sub>On a phone (390 px, dark)</sub> |
+
+<!-- /site:skip -->
 
 ## Quick start
 
@@ -453,6 +503,16 @@ The bridge maps the editor's variables onto Tailwind theme tokens (`bg-atm-surfa
 
 Tailwind must be able to see those class strings (they are in your source, so it does). The wrapper element also accepts `className`.
 
+Tailwind's preflight sets `list-style: none` on every list, and the core's stylesheet leaves list markers to the browser default, so inside a
+Tailwind app bullets and numbers disappear from the editor and from `MarkdownView` (checked in the live demo, Tailwind v4, core 0.1.0). Put them back
+once:
+
+```css
+.atm-surface ul { list-style: disc; }
+.atm-surface ol { list-style: decimal; }
+.atm-surface li.atm-task { list-style: none; }
+```
+
 ## Server rendering and hydration
 
 `<MarkdownEditor />` renders, on the server and for the first client render, a static copy of the initial Markdown (the core's
@@ -507,16 +567,68 @@ the editor under StrictMode.
 
 **Where is the CSS?** In the core: `advanced-texteditor-md/style.css`. It is never bundled into this package.
 
+## Browser support
+
+The wrapper adds no browser requirement of its own: it needs what the [core editor](https://github.com/faraasat/advanced-texteditor-md#browser-support)
+needs, and React 17 or newer.
+
+| What | Tested how |
+|---|---|
+| Chromium, desktop and a Pixel 7 emulation | Playwright against the example app (`example/`) and the demo site, in CI |
+| React 19 | the unit, integration, SSR and hydration suites and both apps |
+| React 17 and 18 | designed for (a stand-in replaces `useSyncExternalStore` on 17); **not** in the CI matrix |
+| Firefox, WebKit | covered by the core's own Playwright suite, **not** re-run here |
+| Node 20, 22, 24 | CI matrix (typecheck, tests, build, size) |
+| Real iOS and Android devices | not run |
+
+## How it compares
+
+The wrapper is small because the editor is the core's separate, lazily loaded download. Measured 2026-10-02 (gzip -9, `npm run size` in this
+repository, which excludes the core):
+
+| Piece | Gzip |
+|---|---|
+| `react-advanced-texteditor-md` (editor, hooks, client `MarkdownView`) | 5.5 kB (budget 6 kB) |
+| `react-advanced-texteditor-md/view` (server-safe renderer) | 4.3 kB (budget 5 kB) |
+| The core's editor entry that the wrapper loads | about 62 kB, with more chunks on first use (see the core's [size table](https://github.com/faraasat/advanced-texteditor-md#size-and-lazy-loading)) |
+
+For the whole editor against Tiptap, Lexical and Milkdown (measured the same way, with the method and versions) see the core's
+[comparison](https://github.com/faraasat/advanced-texteditor-md#how-it-compares): the initial JavaScript of a Markdown-holding editor was
+62.4 kB gzip here against 139.4 kB (Tiptap), 137.3 kB (Lexical) and 137.0 kB (Milkdown), the others being headless toolkits. Those
+libraries also have React bindings of their own and capabilities this one lacks (real-time collaboration, a larger ecosystem, longer track
+record); we did not measure rendering speed or editing quality and make no claim about them.
+
+
+## Roadmap and known gaps
+
+- **Depends on a published core.** `advanced-texteditor-md` is a regular dependency; this package cannot be installed from the registry until the
+  core is.
+- **Controlled mode and a rejected change:** React gives the component no signal when a parent refuses an update, so call `ref.current.setValue(previous)`
+  yourself (see the FAQ).
+- **Structural options recreate the editor** (`layout`, `plugins`, `syntax`, ...) and the undo history does not survive that.
+- **React 17 and 18** are supported by design but not exercised in CI; only 19 is.
+- **Tailwind preflight** removes list markers unless you add the three CSS lines shown under Tailwind v4 (a core stylesheet matter).
+- Everything in the core's [roadmap and known gaps](https://github.com/faraasat/advanced-texteditor-md#roadmap-and-known-gaps) applies here too.
+
+Gaps you hit are welcome as [issues](https://github.com/faraasat/react-advanced-texteditor-md/issues).
+
+## Privacy
+
+The demo site uses privacy-respecting analytics: Aptabase (cookieless) and, only with your consent, Google Analytics. The npm package itself
+collects nothing: it makes no network request on its own, loads no script, and sends no telemetry. Details, and how to change your choice:
+[the site's Privacy page](https://faraasat.github.io/react-advanced-texteditor-md/privacy/) and [SECURITY.md](SECURITY.md).
+
 ## Developing this package
 
-`advanced-texteditor-md` is a normal dependency (`^0.1.0`). Until it is published, link the sibling checkout:
+`advanced-texteditor-md` is a normal dependency (`^0.1.0`) and CI installs it from the registry, so the core must be published first.
+Locally, link the sibling checkout:
 
 ```bash
 npm install --no-save ../advanced-texteditor-md   # or: npm run link:core
 ```
 
-That creates a symlink in `node_modules`, leaves `package.json` untouched and publishable, and uses the core's built `dist/`
-(run `npm run build` in the core first if it is missing). A later plain `npm install` prunes the link; run the command again.
+That creates a symlink in `node_modules`, leaves `package.json` untouched and publishable, and uses the core's built `dist/` (run `npm run build`
+in the core first if it is missing). A later plain `npm install` prunes the link; run the command again.
 
 ```bash
 npx vitest run                         # unit, integration (real core in jsdom), SSR, hydration, bundle shape
@@ -525,8 +637,32 @@ npm run build                          # tsup: dist/index (use client) + dist/vi
 npm run size                           # gzip budget: main <= 6 kB, view <= 5 kB (the core is excluded)
 npm run check:next                     # imports the built entries in Node with no DOM
 npm run example:build && npx playwright test --project=desktop   # example app (example/) in Chromium
+npm run site:install && npm run site:build && npm run site:serve # the Pages site (site/): http://127.0.0.1:4328/react-advanced-texteditor-md/
+npm run test:site                      # smoke tests of the built site, under its base path
 ```
+
+## Contributing
+
+Bug reports, reproductions and pull requests are welcome: read [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
+Editor behaviour belongs in the [core repository](https://github.com/faraasat/advanced-texteditor-md); React semantics belong here. Security problems
+go through a [private advisory](https://github.com/faraasat/react-advanced-texteditor-md/security/advisories/new), not a public issue
+([SECURITY.md](SECURITY.md)).
+
+## Maintainers
+
+Releases are deliberate; nothing publishes on a push to `main`. **Publish `advanced-texteditor-md` first**: this package depends on it.
+
+1. `npm run release` bumps the version, writes `CHANGELOG.md` and creates the tag (standard-version, from Conventional Commits).
+2. `git push --follow-tags`. The **Release** workflow runs on the `v*` tag: typecheck, tests, build, size budget, Next.js check, then
+   `npm publish --provenance --access public`, and creates the GitHub Release.
+3. It needs one repository secret, **`NPM_TOKEN`**: an npm *Automation* token with publish rights (Settings, Secrets and variables, Actions).
+   Provenance needs no further setup: the workflow has `id-token: write`.
+
+**Actions, Release, "Run workflow"** with `dry-run` ticked builds and packs without publishing. The **Deploy site to GitHub Pages** workflow needs no
+secrets; Pages must use the "GitHub Actions" source.
 
 ## License
 
 MIT
+
+Made by [Farasat Ali](https://github.com/faraasat).

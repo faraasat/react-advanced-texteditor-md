@@ -1,0 +1,26 @@
+{
+  "name": "react-advanced-texteditor-md-site",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The live demo of react-advanced-texteditor-md: a static Next.js export for GitHub Pages.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "advanced-texteditor-md": "^0.1.0",
+    "next": "16.3.8",
+    "react": "19.2.8",
+    "react-advanced-texteditor-md": "file:..",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

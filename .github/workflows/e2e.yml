@@ -1,0 +1,55 @@
+name: E2E
+
+# Needs the PUBLISHED core on npm (see ci.yml).
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: Browser tests and demo site
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      # Builds the package and the esbuild example (example/), then runs Chromium desktop + mobile.
+      - name: Run E2E
+        run: npm run test:e2e
+
+      - name: Build the demo site
+        run: |
+          npm run site:install
+          npm run site:build
+
+      - name: Test the demo site under its project-pages base path
+        run: npm run test:site
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

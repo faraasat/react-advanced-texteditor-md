@@ -1,0 +1,65 @@
+name: Deploy site to GitHub Pages
+
+# Pages source: "GitHub Actions" (build_type: workflow). Needs no secrets. The site installs the PUBLISHED core from npm,
+# so this workflow fails until `advanced-texteditor-md` is published.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Allow one concurrent deployment, never cancel a running one mid-publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    name: Build site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Use Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      # The site installs this package as a copy of what `npm pack` would publish, so it always reflects this commit.
+      - name: Install & build package
+        run: |
+          npm install
+          npm run build
+
+      - name: Install site dependencies
+        run: npm run site:install
+
+      # Project pages are served from /<repo>/, so the Next.js basePath is /react-advanced-texteditor-md.
+      - name: Build site (static export)
+        env:
+          SITE_BASE: /react-advanced-texteditor-md/
+        run: npm run site:build
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site/out
+
+  deploy:
+    name: Deploy to Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
