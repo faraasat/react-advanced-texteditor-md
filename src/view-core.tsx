@@ -310,7 +310,7 @@ export function block(b: BlockNode, c: Ctx, key: number, tight = false, top = tr
       const items = b.items.map((it, i) => {
         const task = it.checked !== undefined;
         const kids = [
-          task ? h("input", { key: "box", type: "checkbox", className: cls(c, "task-box"), disabled: true, readOnly: true, checked: !!it.checked }) : null,
+          task ? h("input", { key: "box", type: "checkbox", className: cls(c, "task-box"), disabled: true, readOnly: true, checked: !!it.checked, "aria-label": c.r.labels.task || "Task" }) : null,
           ...blocks(it.children, c, b.tight, false),
         ];
         const liClass = cls(c, "li", "listItem") + (task ? " " + cls(c, "task") + (it.checked ? " " + cls(c, "task-done") : "") : "");

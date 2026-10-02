@@ -2,7 +2,7 @@ import { forwardRef, memo, useImperativeHandle, useState } from "react";
 import type { ForwardedRef } from "react";
 import { createPortal } from "react-dom";
 import { renderHtml } from "advanced-texteditor-md/render";
-import type { ChipDefinition, EditorInstance, RenderOptions } from "advanced-texteditor-md";
+import type { EditorInstance, RenderOptions } from "advanced-texteditor-md";
 import { useEngine } from "./engine";
 import type { MarkdownEditorProps } from "./types";
 
@@ -10,8 +10,9 @@ const cx = (...c: (string | undefined | false)[]) => c.filter(Boolean).join(" ")
 
 /** The static copy shown until the editor exists. Pure and DOM-free: it runs on the server. */
 function staticHtml(p: MarkdownEditorProps, markdown: string): string {
-  const chips: Record<string, ChipDefinition> = {};
-  for (const d of p.chips ?? []) chips[d.scheme] = d;
+  // The core accepts both forms (array or record) and derives the chip schemes.
+  const chips = p.chips ?? [];
+  const chipSchemeNames = Array.isArray(chips) ? chips.map((d) => d.scheme) : Object.keys(chips);
   const mentions = p.mentions ? (Array.isArray(p.mentions) ? p.mentions : [p.mentions]) : [];
   const o: RenderOptions = {
     math: p.features?.math !== false,
@@ -21,7 +22,7 @@ function staticHtml(p: MarkdownEditorProps, markdown: string): string {
     classPrefix: p.classPrefix,
     highlight: p.highlight,
     chips,
-    chipSchemes: [...Object.keys(chips), ...mentions.map((m) => m.scheme ?? "mention")],
+    chipSchemes: [...chipSchemeNames, ...mentions.map((m) => m.scheme ?? "mention")],
     embeds: p.embeds,
   };
   return renderHtml(markdown, o);
