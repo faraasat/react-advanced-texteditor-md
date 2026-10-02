@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 0.2.0 (2026-10-02)
+
+- Requires `advanced-texteditor-md` `^0.2.0` (large-document speed fix, definition lists, tasks, dictation and present/reader subpaths).
+- Fix: `onSubmit` now uses the core's own `onSubmit` option. 0.1.0 listened for a `submit` event that the core had renamed to `atm:submit`, so `onSubmit` never fired in the comment-box layout.
+
 ## 0.1.0 (2026-10-02)
 
 First release. Requires `advanced-texteditor-md` `^0.1.0`.

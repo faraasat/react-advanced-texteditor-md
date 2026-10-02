@@ -134,7 +134,7 @@ export function useEngine(options: EngineOptions): Engine {
       onBlur: () => latest.current.onBlur?.(),
       onMentionsChange: (l) => latest.current.onMentionsChange?.(l),
       onUpload: (e) => latest.current.onUpload?.(e),
-      // Core >= 0.1.0 calls this after dispatching the cancelable `atm:submit` event (Mod-Enter in bottom-bar, exec("submit")).
+      // Core calls this after dispatching the cancelable `atm:submit` event (Mod-Enter in bottom-bar, exec("submit")).
       onSubmit: (md) => latest.current.onSubmit?.(md, handle),
     };
     const ed = createEditor(host, opts);
