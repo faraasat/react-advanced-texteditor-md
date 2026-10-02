@@ -134,6 +134,8 @@ export function useEngine(options: EngineOptions): Engine {
       onBlur: () => latest.current.onBlur?.(),
       onMentionsChange: (l) => latest.current.onMentionsChange?.(l),
       onUpload: (e) => latest.current.onUpload?.(e),
+      // Core >= 0.1.0 calls this after dispatching the cancelable `atm:submit` event (Mod-Enter in bottom-bar, exec("submit")).
+      onSubmit: (md) => latest.current.onSubmit?.(md, handle),
     };
     const ed = createEditor(host, opts);
     optsRef.current = opts;
@@ -145,14 +147,11 @@ export function useEngine(options: EngineOptions): Engine {
     aria();
     // The Markdown pane is created lazily: label each pane when it is mounted (and again on focus, for cores without the event).
     const offs = [ed.on("pane", aria), ed.on("mode", aria), ed.on("focus", aria)];
-    const onSubmit = (ev: Event) => latest.current.onSubmit?.((ev as CustomEvent<{ value?: string }>).detail?.value ?? ed.getValue(), handle);
-    ed.element.addEventListener("submit", onSubmit);
 
     setEditor(ed);
     latest.current.onReady?.(handle);
 
     return () => {
-      ed.element.removeEventListener("submit", onSubmit);
       offs.forEach((off) => off());
       let focused = false;
       try {

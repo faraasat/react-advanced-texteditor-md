@@ -353,11 +353,11 @@ describe("children and actions slot", () => {
 });
 
 describe("onSubmit", () => {
-  it("is called from the core's bubbling submit event with the value", () => {
+  it("is forwarded to the core's own onSubmit option and called with the value and the handle", () => {
     const onSubmit = vi.fn();
     render(<MarkdownEditor layout="bottom-bar" defaultValue="v" onSubmit={onSubmit} />);
-    current().element.dispatchEvent(new CustomEvent("submit", { bubbles: true, detail: { value: "from event" } }));
-    expect(onSubmit).toHaveBeenCalledWith("from event", expect.anything());
+    current().options.onSubmit?.("from core", current() as never);
+    expect(onSubmit).toHaveBeenCalledWith("from core", expect.anything());
   });
 });
 
