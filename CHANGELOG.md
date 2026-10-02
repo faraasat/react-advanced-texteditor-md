@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.2 - 2026-10-03
+
+### Changed
+- Requires `advanced-texteditor-md` ^0.3.2: in the compact layout the toolbar folds after the pointer is released, so a button under the editor is no longer missed on the first press.
+
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 ## 0.3.1 (2026-10-03)
