@@ -1,0 +1,6 @@
+{
+  // The example imports this package by name, which resolves to the BUILT dist, so it can only be
+  // typechecked after `npm run build`. The library's own typecheck (root tsconfig) must not need dist.
+  "extends": "../tsconfig.json",
+  "include": ["src", "../scripts/*.d.ts"]
+}
