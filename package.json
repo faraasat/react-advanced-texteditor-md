@@ -1,6 +1,6 @@
 {
   "name": "react-advanced-texteditor-md",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "React bindings for advanced-texteditor-md: a WYSIWYG editor that stores Markdown. A controlled or uncontrolled <MarkdownEditor />, a native <MarkdownView /> renderer (server-component friendly), and hooks. Mentions, chips, uploads, plugins, themes.",
   "keywords": [
     "app router",
@@ -113,7 +113,7 @@
     "test:site": "playwright test -c playwright.site.config.ts"
   },
   "dependencies": {
-    "advanced-texteditor-md": "^0.2.1"
+    "advanced-texteditor-md": "^0.3.0"
   },
   "peerDependencies": {
     "react": ">=17.0.0",

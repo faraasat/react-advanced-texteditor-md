@@ -68,7 +68,7 @@ describe("built bundle shape", () => {
     for (const f of files) expect(existsSync(join(root, f)), f).toBe(true);
     expect(pkg.sideEffects).toBe(false);
     expect(pkg.publishConfig).toEqual({ access: "public", provenance: true });
-    expect(pkg.dependencies["advanced-texteditor-md"]).toBe("^0.2.1");
+    expect(pkg.dependencies["advanced-texteditor-md"]).toBe("^0.3.0");
     expect(pkg.peerDependencies).toEqual({ react: ">=17.0.0", "react-dom": ">=17.0.0" });
   });
 
