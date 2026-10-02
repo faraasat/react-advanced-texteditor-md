@@ -111,6 +111,28 @@ function MarkdownViewImpl(props: MarkdownViewProps) {
     if (rootRef.current) ctl.current?.hydrate(rootRef.current);
   }, [doc]);
 
+  // Chip cards: the core binds the rendered chips in an effect (never during render, so hydration
+  // matches). One binding per `cards` value; a new document only asks it to look for new chips.
+  const cards = r.cards;
+  const cardsHandle = useRef<{ refresh(): void; destroy(): void } | null>(null);
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!cards || !el) return;
+    let dead = false;
+    import("advanced-texteditor-md/chips").then((m) => {
+      if (dead) return;
+      cardsHandle.current = m.enhanceChipCards(el, { ...cards, classPrefix: r.prefix });
+    });
+    return () => {
+      dead = true;
+      cardsHandle.current?.destroy();
+      cardsHandle.current = null;
+    };
+  }, [cards, r.prefix]);
+  useIsoLayoutEffect(() => {
+    cardsHandle.current?.refresh();
+  }, [doc]);
+
   return h("div", { ...root, ref: rootRef }, items, foot);
 }
 

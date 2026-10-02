@@ -43,6 +43,7 @@ export type ResolvedView = {
   mathRenderer: MathRenderer | null;
   syntax: NonNullable<ParseOptions["syntax"]>;
   onChipClick?: MarkdownViewOptions["onChipClick"];
+  cards?: MarkdownViewOptions["cards"];
   onLinkClick?: MarkdownViewOptions["onLinkClick"];
 };
 
@@ -73,6 +74,7 @@ export function resolveView(o: MarkdownViewOptions = {}): ResolvedView {
     mathRenderer,
     syntax: o.syntax ?? {},
     onChipClick: o.onChipClick,
+    cards: o.cards,
     onLinkClick: o.onLinkClick,
   };
 }
@@ -201,6 +203,7 @@ function chipEl(n: Chip, c: Ctx, key: number): ReactElement {
     "data-refs": n.attrs && Object.keys(n.attrs).length ? JSON.stringify(n.attrs) : undefined,
   };
   if (onClick) {
+    props["data-atm-interactive"] = "";
     props.onClick = onClick;
     props.role = "button";
     props.tabIndex = 0;

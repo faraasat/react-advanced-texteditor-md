@@ -104,6 +104,28 @@ test.describe("mentions", () => {
     await expect(chip).toHaveAttribute("style", /--atm-chip-color:var\(--atm-chip-3\)/);
   });
 
+  test("cards: hovering a chip shows the profile card in the editor and in the view, with a pointer", async ({ page, isMobile }) => {
+    test.skip(!!isMobile, "keyboard and hover");
+    await open(page);
+    await clear(page);
+    await page.keyboard.type("cc @Jane");
+    await expect(page.locator("[role=option]", { hasText: "Jane Doe" })).toBeVisible();
+    await page.keyboard.press("Enter");
+    const inEditor = surface(page).locator("[data-scheme=mention][data-id=u1]");
+    await inEditor.hover();
+    const card = page.locator(".atm-chip-card");
+    await expect(card).toContainText("Profile card");
+    expect(await inEditor.evaluate((e) => getComputedStyle(e).cursor)).toBe("pointer");
+    await page.mouse.move(2, 2);
+    await expect(card).toHaveCount(0);
+    const inView = page.locator("[data-testid=view-section] [data-scheme=mention][data-id=u1]");
+    await expect(inView).toHaveAttribute("tabindex", "0");
+    await inView.hover();
+    await expect(card).toContainText("Profile card");
+    await page.keyboard.press("Escape");
+    await expect(card).toHaveCount(0);
+  });
+
   test("a team uses the declared colour and badge, in the editor and in the view", async ({ page, isMobile }) => {
     test.skip(!!isMobile, "keyboard");
     await open(page);

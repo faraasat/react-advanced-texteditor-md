@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { RefObject } from "react";
 import { createEditor } from "advanced-texteditor-md";
 import type { EditorInstance, EditorMode, EditorOptions } from "advanced-texteditor-md";
+import { cardsPlugin } from "./cards";
 import { EditorBridge, createHandle } from "./bridge";
 import { useIsoLayoutEffect } from "./isomorphic";
 import { materialize, shallowEqual, signature, type FnTable, type Signature } from "./stable";
@@ -15,7 +16,8 @@ import type { UseMarkdownEditorOptions } from "./types";
  */
 const LIVE = ["aria-labelledby", "aria-describedby", "value", "defaultValue", "mode", "defaultMode", "readOnly", "disabled", "theme", "minHeight", "maxHeight", "ssr"];
 const CALLBACKS = ["onChange", "onModeChange", "onFocus", "onBlur", "onReady", "onMentionsChange", "onUpload", "onSubmit"];
-export const SKIP: ReadonlySet<string> = new Set([...LIVE, ...CALLBACKS]);
+const OWN = ["cards"];
+export const SKIP: ReadonlySet<string> = new Set([...LIVE, ...CALLBACKS, ...OWN]);
 
 export type EngineOptions = UseMarkdownEditorOptions & { "aria-labelledby"?: string; "aria-describedby"?: string };
 
@@ -104,6 +106,8 @@ export function useEngine(options: EngineOptions): Engine {
   });
   const themeKey = (t: unknown) => (t === undefined ? "" : typeof t === "string" ? t : JSON.stringify(t));
 
+  const hasCards = !!options.cards;
+
   /* ── create / recreate ── */
   useIsoLayoutEffect(() => {
     const host = hostRef.current;
@@ -113,6 +117,7 @@ export function useEngine(options: EngineOptions): Engine {
     const cfg = materialize(o as Record<string, unknown>, table.current, SKIP) as EditorOptions;
     const opts: EditorOptions = {
       ...cfg,
+      plugins: hasCards ? [...(cfg.plugins ?? []), cardsPlugin(() => latest.current.cards)] : cfg.plugins,
       value: o.value !== undefined ? o.value : (c?.value ?? o.defaultValue ?? ""),
       mode: o.mode ?? c?.mode ?? o.defaultMode,
       readOnly: o.readOnly,
@@ -165,7 +170,7 @@ export function useEngine(options: EngineOptions): Engine {
     };
     // Only a structural change recreates the editor: that is the whole point of the signature.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sig.key]);
+  }, [sig.key, hasCards]);
 
   /* ── value: the prop wins over the editor only when it really differs ── */
   useEffect(() => {

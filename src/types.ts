@@ -13,6 +13,13 @@ import type {
   ParseOptions,
   RenderOptions,
 } from "advanced-texteditor-md";
+import type { ChipCardsOptions } from "advanced-texteditor-md/chips";
+
+/**
+ * Hover cards for mentions and chips: `getCard(chip, { signal })` returns card data, an HTMLElement,
+ * a Promise of either, or null. Without it nothing changes. See the core's `createChipCardsPlugin`.
+ */
+export type ChipCardsProp = ChipCardsOptions;
 
 export type ChipNode = Extract<InlineNode, { type: "chip" }>;
 
@@ -63,6 +70,12 @@ export type UseMarkdownEditorOptions = EditorConfig &
      * app to skip the extra render of a large document.
      */
     ssr?: boolean;
+    /**
+     * Profile cards for chips and mentions: hover, keyboard focus (the caret beside a chip) and a touch
+     * long-press open `getCard(chip, { signal })`. Omit it and nothing changes. `getCard` may change
+     * identity on every render; the latest is called and the editor is not recreated.
+     */
+    cards?: ChipCardsProp;
   };
 
 export type MarkdownEditorProps = UseMarkdownEditorOptions & {
@@ -145,6 +158,12 @@ export type MarkdownViewOptions = Pick<ParseOptions, "gfm" | "footnotes" | "synt
   labels?: RenderOptions["labels"];
   components?: ViewComponents;
   onChipClick?: (chip: ChipNode, ev: ReactMouseEvent<HTMLElement>) => void;
+  /**
+   * Profile cards for chips and mentions (client `MarkdownView` only; the server-safe one ignores it).
+   * Hover, focus and a touch long-press open `getCard(chip, { signal })`; Escape closes it.
+   * Omit it and nothing changes.
+   */
+  cards?: ChipCardsProp;
   /** Called before the browser follows the link; `ev.preventDefault()` stops it. */
   onLinkClick?: (href: string, ev: ReactMouseEvent<HTMLAnchorElement>) => void;
 };

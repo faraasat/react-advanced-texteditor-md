@@ -92,6 +92,7 @@ export function App() {
             allowExtensions: ["png", "jpg", "pdf"],
           }}
           features={{ headings: [1, 2, 3] }}
+          cards={{ getCard: (c) => ({ title: c.label, subtitle: "Profile card" }), delayMs: 100 }}
         />
         <Words editor={editor} />
         <pre data-testid="md-out">{md}</pre>
@@ -99,7 +100,7 @@ export function App() {
 
       <section data-testid="view-section">
         <h2>MarkdownView of the same Markdown</h2>
-        <MarkdownView markdown={md} theme={theme} chips={[{ scheme: "mention", kinds: { person: { color: 3 }, team: { color: "#0d9488", label: "Team" } } }]} onChipClick={(c) => setSaved(`clicked ${c.label}`)} />
+        <MarkdownView markdown={md} theme={theme} chips={[{ scheme: "mention", kinds: { person: { color: 3 }, team: { color: "#0d9488", label: "Team" } } }]} onChipClick={(c) => setSaved(`clicked ${c.label}`)} cards={{ getCard: (c) => ({ title: c.label, subtitle: "Profile card" }), delayMs: 100 }} />
         <p data-testid="chip-out">{saved}</p>
       </section>
 
