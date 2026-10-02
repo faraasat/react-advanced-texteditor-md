@@ -28,7 +28,7 @@ jobs:
         # package itself has no such requirement; this matrix is the DEVELOPMENT toolchain.
         node-version: [22, 24]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v5
