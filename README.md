@@ -166,6 +166,7 @@ Added or changed by the React layer:
 | `className`, `style`, `id` | On the wrapping `<div>`. |
 | `aria-label`, `aria-labelledby`, `aria-describedby` | On the editable surface (and the Markdown textarea). A `<label htmlFor>` cannot target a `contenteditable`; use `aria-labelledby`. |
 | `children` | Rendered into the layout's `actions` slot by a portal. See [Comment boxes](#comment-boxes-children-and-the-actions-slot). |
+| `cards` | Profile cards for chips and mentions: `{ getCard(chip, { signal }), delayMs?, graceMs?, schemes?, cacheSize?, labels? }`. `getCard` returns card data (`{ title, subtitle?, avatarUrl?, fields?, list?, links? }`), an `HTMLElement`, a Promise of either, or `null`. Hover, the caret beside a chip and a touch long-press open it; Escape closes it. Omit it and nothing changes. A new `getCard` identity each render does not recreate the editor. See [Cards](#cards-for-mentions-and-chips). |
 | `ssr` | `false` skips the static server copy (client-only apps with huge documents). Default `true`. |
 | `ref` | The full `EditorInstance`, one stable object. See [The ref](#the-ref). |
 
@@ -403,18 +404,37 @@ import { MarkdownView } from "react-advanced-texteditor-md";
 Props: `markdown`, `className`, `style`, `id`, `theme` (`"light" | "dark"`), `aria-label`, plus the render options of the core:
 `gfm`, `math` (`false` to leave `$` alone), `mathRenderer`, `footnotes`, `syntax`, `chips` (an array, as the editor takes it, or a
 record), `chipSchemes`, `links`, `classPrefix`, `classNames` (per **node type**: `paragraph`, `heading`, `table`, ...),
-`highlight`, `embeds`, `linkPreview`, `labels`.
+`highlight`, `embeds`, `linkPreview`, `labels`, and `cards` (client `MarkdownView` only, see [Cards](#cards-for-mentions-and-chips)).
 
 - **Math** is rendered by the core's TeX renderer into MathML. A string result is trusted core output and is inserted as markup;
   an `HTMLElement` result from a custom renderer is attached on the client.
 - **Code**: pass `highlight` (a `createHighlighter([...])`); the highlighter's escaped markup is the only other trusted markup.
 - **Chips** carry `data-scheme`, `data-kind`, `data-id`, `data-trigger`, `data-refs`, a kind class, the colour variable and the
-  kind's badge. With `onChipClick` or `ChipDefinition.onClick` they become `role="button"` and answer Enter and Space.
+  kind's badge. With `onChipClick` or `ChipDefinition.onClick` they become `role="button"` and answer Enter and Space, and carry `data-atm-interactive` (pointer cursor, hover and focus styles).
 - **Embeds and link previews**: `embeds` turns a top-level line holding only a URL into the core's sandboxed iframe block.
   `linkPreview` marks standalone-URL paragraphs; the client `MarkdownView` loads the core's link-preview controller and turns the
   marks into cards (and hover cards). `resolve` must run on your server, see the core's docs.
 - **The wrapper** is `<div class="atm-surface atm-view">` with the min-height and padding variables set to 0 (override with
   `style` or the `--atm-surface-*` variables).
+
+### Cards for mentions and chips
+
+Pass `cards` to show a profile card when a mention or chip is hovered, focused with the keyboard or long-pressed on a touch screen. It works the same on `<MarkdownEditor />` and on the client `<MarkdownView />`:
+
+```tsx
+const getCard = async (chip, { signal }) => {
+  const p = await fetch(`/api/people/${chip.id}`, { signal }).then((r) => r.json());
+  return { title: p.name, subtitle: p.role, avatarUrl: p.avatar, links: [{ label: "Profile", href: `/people/${chip.id}` }] };
+};
+
+<MarkdownView markdown={post.body} cards={{ getCard }} onChipClick={(chip) => router.push(`/people/${chip.id}`)} />;
+<MarkdownEditor value={md} onChange={setMd} mentions={mentions} cards={{ getCard }} />;
+```
+
+- **Opt-in:** without `cards` the chips are exactly as before. The card code (the core's `/chips` subpath) is fetched only when `cards` is set.
+- **View:** the chips are bound in an effect after the render, so server and client markup are identical and there is no hydration mismatch. One binding lives as long as the `cards` value does; new Markdown only binds the chips that are new, and blocks React keeps (the memoisation) keep their binding. It is removed on unmount. The server-safe `react-advanced-texteditor-md/view` ignores `cards`.
+- **Editor:** the cards plugin is added to the editor; `getCard` is read through a ref, so an inline function does not recreate it. Turning `cards` on or off does.
+- **Pointer and states:** chips with a card, or with `onChipClick`, get `data-atm-interactive`: a pointer cursor, a hover tint, a focus ring. Cards are `role="tooltip"` (or a non-modal `role="dialog"` when they hold links), close with Escape, copy the theme, density and `dir` of the content, and respect `prefers-reduced-motion` and forced colors.
 
 ### Customising with `components`
 

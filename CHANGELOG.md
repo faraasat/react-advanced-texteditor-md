@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## Unreleased
+
+- `cards` prop on `<MarkdownEditor />`, `useMarkdownEditor` and the client `<MarkdownView />`: profile cards for chips and mentions on hover, keyboard focus and touch long-press (`getCard(chip, { signal })`, opt-in, lazy, no hydration mismatch, bound once per `cards` value, removed on unmount). The server-safe `/view` ignores it.
+- Chips with `onChipClick` or `ChipDefinition.onClick` carry `data-atm-interactive`, which the core's stylesheet turns into a pointer cursor, a hover tint and a focus ring.
+- Needs the core release that adds `enhanceChipCards` and the interactive chip styles (`advanced-texteditor-md` above 0.3.0).
+
 ## 0.3.0 (2026-10-03)
 
 - Requires `advanced-texteditor-md` `^0.3.0`: new lazy subpaths `/snippets`, `/links`, `/comments`, `/frontmatter` and `/source` (import them from the core and pass the plugins through `plugins`).
