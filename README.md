@@ -53,21 +53,21 @@ server-component build), and three hooks.
 npm i react-advanced-texteditor-md      # or: pnpm add / yarn add / bun add
 ```
 
-See it first in the **[live demo](https://faraasat.github.io/react-advanced-texteditor-md/)**: eleven demos, each with the exact code beside it.
+See it first in the **[live demo](https://faraasat.github.io/react-advanced-texteditor-md/)**: a playground with every layout, theme and mode, and eleven demos, each with the exact code beside it.
 
 `advanced-texteditor-md` is a regular dependency and installs with it. `react` and `react-dom` (17 or newer) are peer dependencies.
 
 <!-- site:skip -->
 ## Screenshots
 
-From the [live demo](https://faraasat.github.io/react-advanced-texteditor-md/); every demo shows its own source beside it.
-
 | | |
 |---|---|
+| <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/playground.png" alt="The playground with its JSX tab" /><br><sub>The playground: the real component, with the JSX it would take</sub> | <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/playground-split.png" alt="The split layout in the playground" /><br><sub>Every layout, theme and mode, live</sub> |
 | <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/demo-controlled.png" alt="The controlled demo with its code" /><br><sub>Controlled editor, with the code that runs it</sub> | <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/mentions-menu.png" alt="The mention menu" /><br><sub>Mentions with badges and colours</sub> |
 | <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/demo-server.png" alt="A MarkdownView rendered by a Server Component" /><br><sub><code>MarkdownView</code> in a Server Component (dark mode)</sub> | <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/demo-tailwind.png" alt="The editor styled with Tailwind utility classes" /><br><sub>Tailwind v4 through <code>classNames</code></sub> |
 | <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/demo-theming.png" alt="Theming demo with the sepia theme" /><br><sub>Themes and custom tokens</sub> | <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/uploads.png" alt="Uploads accepted and rejected by the allow and deny lists" /><br><sub>Uploads: allow and deny lists</sub> |
-| <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/demo-comments.png" alt="A comment box in the bottom-bar layout" /><br><sub>A comment box with React children in the actions slot</sub> | <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/mobile-editor.png" alt="The demo on a phone" width="260" /><br><sub>On a phone (390 px, dark)</sub> |
+| <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/demo-comments.png" alt="A comment box in the bottom-bar layout" /><br><sub>A comment box with React children in the actions slot</sub> | <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/landing-light.png" alt="The demo site in light mode" /><br><sub>The demo site, light mode (it follows your system and has a toggle)</sub> |
+| <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/dark-mode.png" alt="The demo site in dark mode" /><br><sub>The demo site, dark mode</sub> | <img src="https://raw.githubusercontent.com/faraasat/react-advanced-texteditor-md/main/github-imgs/mobile-editor.png" alt="The demo on a phone" width="260" /><br><sub>On a phone (390 px, dark)</sub> |
 
 <!-- /site:skip -->
 
@@ -503,8 +503,12 @@ The bridge maps the editor's variables onto Tailwind theme tokens (`bg-atm-surfa
 
 Tailwind must be able to see those class strings (they are in your source, so it does). The wrapper element also accepts `className`.
 
+The editor's stylesheet is plain, unlayered CSS, and Tailwind's utilities live in a cascade layer, so where a utility and the editor's own rule set the same
+property on the same element (`rounded-2xl` or `border-2` on `root`, say) the editor's rule wins. Import it into a lower layer and the utilities win:
+`@import "advanced-texteditor-md/style.css" layer(components);` (the demo site does this; checked with Tailwind v4 and core 0.1.0).
+
 Tailwind's preflight sets `list-style: none` on every list, and the core's stylesheet leaves list markers to the browser default, so inside a
-Tailwind app bullets and numbers disappear from the editor and from `MarkdownView` (checked in the live demo, Tailwind v4, core 0.1.0). Put them back
+Tailwind app bullets and numbers disappear from the editor and from `MarkdownView` (checked with Tailwind v4 and core 0.1.0). Put them back
 once:
 
 ```css
@@ -638,7 +642,7 @@ npm run size                           # gzip budget: main <= 6 kB, view <= 5 kB
 npm run check:next                     # imports the built entries in Node with no DOM
 npm run example:build && npx playwright test --project=desktop   # example app (example/) in Chromium
 npm run site:install && npm run site:build && npm run site:serve # the Pages site (site/): http://127.0.0.1:4328/react-advanced-texteditor-md/
-npm run test:site                      # smoke tests of the built site, under its base path
+npm run test:site                      # the built site under its base path: behaviour, no 404s, axe in light and dark
 ```
 
 ## Contributing

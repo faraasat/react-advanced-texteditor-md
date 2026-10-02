@@ -105,8 +105,8 @@
     "test:e2e": "npm run build && npm run example:build && playwright test",
     "release": "standard-version",
     "prepublishOnly": "npm run typecheck && vitest run && npm run build && npm run size && npm run check:next",
-    "site:install": "npm --prefix site install",
-    "site:build": "node scripts/build-site.mjs",
+    "site:install": "node scripts/site-install.mjs",
+    "site:build": "node scripts/site-build.mjs",
     "site:serve": "node scripts/serve-site.mjs",
     "site:screenshots": "node scripts/site-screenshots.mjs",
     "test:site": "playwright test -c playwright.site.config.ts"
@@ -119,6 +119,7 @@
     "react-dom": ">=17.0.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.63.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",

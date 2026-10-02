@@ -1,6 +1,26 @@
 "use client";
+
+import { useSyncExternalStore } from "react";
+import { SITE } from "@/lib/config";
 import { track } from "@/lib/analytics";
-import { useSiteTheme } from "@/lib/use-site-theme";
+import { Icon } from "./icons";
+
+export type SiteTheme = "light" | "dark";
+
+function subscribe(onChange: () => void) {
+  const mo = new MutationObserver(onChange);
+  mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  return () => mo.disconnect();
+}
+
+/** The page's light / dark choice, as set on <html> (by the inline script, then by the toggle). "dark" on the server. */
+export function useSiteTheme(): SiteTheme {
+  return useSyncExternalStore(
+    subscribe,
+    () => (document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark"),
+    () => "dark",
+  );
+}
 
 export function ThemeToggle() {
   const theme = useSiteTheme();
@@ -9,7 +29,8 @@ export function ThemeToggle() {
     <button
       type="button"
       id="theme-toggle"
-      aria-pressed={theme === "dark"}
+      className="topnav__btn themebtn"
+      aria-pressed={theme === "light"}
       aria-label={`Switch to ${next} mode`}
       onClick={() => {
         const root = document.documentElement;
@@ -18,15 +39,15 @@ export function ThemeToggle() {
         root.setAttribute("data-atm-theme", next);
         track("theme_switch", { value: next });
         try {
-          localStorage.setItem("ratm-site-theme", next);
+          localStorage.setItem(SITE.themeKey, next);
         } catch {
           /* storage can be blocked: the choice then lasts for this page only */
         }
+        window.dispatchEvent(new CustomEvent("site-theme", { detail: next }));
       }}
-      className="inline-flex items-center gap-1.5 rounded-full border border-line bg-panel px-3 py-1 text-sm hover:bg-panel-2"
     >
-      <span aria-hidden="true">◐</span>
-      <span suppressHydrationWarning>{theme === "dark" ? "Dark" : "Light"}</span>
+      <Icon className="moon" name="moon" size={17} />
+      <Icon className="sun" name="sun" size={17} />
     </button>
   );
 }

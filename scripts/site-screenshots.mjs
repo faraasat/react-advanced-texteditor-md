@@ -54,7 +54,8 @@ async function shoot(name, { widths = [1180, 1060, 940, 820], height = 760, mobi
     }, scheme);
     const page = await ctx.newPage();
     await page.goto(URL_);
-    await page.locator("[data-demo=controlled] [role=textbox]").waitFor();
+    await page.locator("#editor-host [role=textbox]").waitFor();
+    await page.locator("#feature-controlled [role=textbox]").waitFor();
     await page.addStyleTag({ content: "*{caret-color:transparent!important}html{scroll-behavior:auto!important}" });
     const clip = await run(page);
     const file = join(outDir, name + ".png");
@@ -81,29 +82,22 @@ async function section(page, id, { cap = 700 } = {}) {
   return { x: b.x, y: Math.max(0, b.y), width: b.width, height: Math.min(b.height, cap, vh - Math.max(0, b.y)) };
 }
 
-await shoot("hero", {
-  height: 700,
-  run: async (p) => {
-    await p.evaluate(() => window.scrollTo(0, 0));
-    return { x: 0, y: 0, width: p.viewportSize().width, height: 700 };
-  },
-});
-await shoot("demo-controlled", { run: (p) => section(p, "controlled") });
-await shoot("demo-server", { scheme: "dark", run: (p) => section(p, "server") });
-await shoot("demo-theming", { run: (p) => section(p, "theming") });
-await shoot("demo-tailwind", { run: (p) => section(p, "tailwind") });
-await shoot("demo-comments", { scheme: "dark", run: (p) => section(p, "comments") });
+await shoot("demo-controlled", { run: (p) => section(p, "feature-controlled") });
+await shoot("demo-server", { scheme: "dark", run: (p) => section(p, "feature-server") });
+await shoot("demo-theming", { run: (p) => section(p, "feature-theming") });
+await shoot("demo-tailwind", { run: (p) => section(p, "feature-tailwind") });
+await shoot("demo-comments", { scheme: "dark", run: (p) => section(p, "feature-comments") });
 
 await shoot("mentions-menu", {
   run: async (p) => {
-    await section(p, "mentions");
-    const s = p.locator("[data-demo=mentions] [role=textbox]");
+    await section(p, "feature-mentions");
+    const s = p.locator("#feature-mentions [role=textbox]");
     await s.click();
     await p.keyboard.press("End");
     await p.keyboard.type(" @a");
     await p.locator(".atm-mention-option").first().waitFor();
     await p.waitForTimeout(300);
-    const c = await section(p, "mentions");
+    const c = await section(p, "feature-mentions");
     const m = await p.locator(".atm-mention-menu").first().boundingBox();
     const bottom = Math.min(p.viewportSize().height, Math.max(c.y + c.height, m.y + m.height + 12));
     return { x: c.x, y: c.y, width: c.width, height: bottom - c.y };
@@ -112,24 +106,52 @@ await shoot("mentions-menu", {
 
 await shoot("uploads", {
   run: async (p) => {
-    await section(p, "uploads");
-    const d = p.locator("[data-demo=uploads]");
+    await section(p, "feature-uploads");
+    const d = p.locator("#feature-uploads");
     await d.getByRole("button", { name: "Upload photo.png" }).click();
     await d.getByRole("button", { name: "Upload setup.exe" }).click();
     await d.getByRole("button", { name: "Upload scan.pdf (3 MB)" }).click();
     await p.waitForTimeout(1200);
-    return section(p, "uploads");
+    return section(p, "feature-uploads");
   },
 });
 
+// 900 px and up keeps the desktop navigation; the clips are short because the banner's gradients are expensive in a PNG.
 await shoot("dark-mode", {
   scheme: "dark",
-  height: 720,
+  widths: [1040, 1000, 940, 900],
+  height: 450,
   run: async (p) => {
-    await section(p, "plugins");
-    return { x: 0, y: 0, width: p.viewportSize().width, height: 720 };
+    await p.evaluate(() => window.scrollTo(0, 0));
+    return { x: 0, y: 0, width: p.viewportSize().width, height: 450 };
   },
 });
+
+await shoot("landing-light", {
+  scheme: "light",
+  widths: [1040, 1000, 940, 900],
+  height: 450,
+  run: async (p) => {
+    await p.evaluate(() => window.scrollTo(0, 0));
+    return { x: 0, y: 0, width: p.viewportSize().width, height: 450 };
+  },
+});
+
+/** The playground: the real component in a layout and theme, with the editor and the output tabs. */
+async function playground(page, { layout, theme, tab } = {}) {
+  const pick = (legend, option) => page.getByRole("group", { name: legend, exact: true }).getByRole("radio", { name: option, exact: true }).check({ force: true });
+  if (layout) await pick("Layout", layout);
+  if (theme) await pick("Editor theme", theme);
+  if (tab) await page.getByRole("tab", { name: tab, exact: true }).click();
+  await page.evaluate(() => document.getElementById("playground").scrollIntoView({ block: "start" }));
+  await page.evaluate(() => window.scrollBy(0, -64));
+  await page.waitForTimeout(500);
+  const b = await page.locator(".pg").boundingBox();
+  return { x: b.x, y: Math.max(0, b.y), width: b.width, height: Math.min(b.height, 760) };
+}
+await shoot("hero", { run: (p) => playground(p) });
+await shoot("playground", { run: (p) => playground(p, { tab: "JSX" }) });
+await shoot("playground-split", { scheme: "dark", run: (p) => playground(p, { layout: "split", theme: "dark" }) });
 
 await shoot("mobile", {
   mobile: true,
@@ -143,7 +165,7 @@ await shoot("mobile-editor", {
   mobile: true,
   scheme: "dark",
   run: async (p) => {
-    await p.evaluate(() => document.getElementById("mentions").scrollIntoView({ block: "start" }));
+    await p.evaluate(() => document.getElementById("feature-mentions").scrollIntoView({ block: "start" }));
     await p.evaluate(() => window.scrollBy(0, -56));
     await p.waitForTimeout(300);
     return { x: 0, y: 0, width: 390, height: 844 };

@@ -9,26 +9,26 @@ export function ThemingDemo() {
   const [accent, setAccent] = useState("#0e7490");
   const [custom, setCustom] = useState(false);
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-end gap-3 text-sm">
-        <label className="flex flex-col gap-1 font-semibold">
-          Theme
-          <select value={preset} onChange={(e) => setPreset(e.target.value as (typeof THEMES)[number])} className="rounded-md border border-line bg-panel px-2 py-1 font-normal">
+    <>
+      <div className="controls">
+        <div className="field">
+          <label htmlFor="theming-preset">Theme</label>
+          <select id="theming-preset" value={preset} onChange={(e) => setPreset(e.target.value as (typeof THEMES)[number])}>
             {THEMES.map((t) => (
               <option key={t}>{t}</option>
             ))}
           </select>
-        </label>
-        <label className="flex items-center gap-2 font-semibold">
+        </div>
+        <label className="check">
           <input type="checkbox" checked={custom} onChange={(e) => setCustom(e.target.checked)} /> Custom tokens
         </label>
-        <label className="flex flex-col gap-1 font-semibold">
-          Accent
-          <input type="color" value={accent} onChange={(e) => setAccent(e.target.value)} className="h-8 w-12 rounded border border-line" />
-        </label>
+        <div className="field">
+          <label htmlFor="theming-accent">Accent</label>
+          <input id="theming-accent" type="color" value={accent} onChange={(e) => setAccent(e.target.value)} />
+        </div>
       </div>
       {/* The extra themes are picked by data-atm-theme on any ancestor. With `theme` omitted the editor follows it. */}
-      <div data-atm-theme={preset} className="rounded-xl">
+      <div data-atm-theme={preset}>
         {/* `theme` takes "light" | "dark" | "auto" or tokens, and changes in place: the caret and undo history survive. */}
         <MarkdownEditor
           defaultValue={"## Theming\n\nPick a theme, or turn on **custom tokens** and change the accent. Mention [@Ada](mention:staff/u01) too."}
@@ -39,6 +39,6 @@ export function ThemingDemo() {
           theme={custom ? { accent, radius: "14px", palette: ["#e11d48", "#0d9488", accent] } : undefined}
         />
       </div>
-    </div>
+    </>
   );
 }

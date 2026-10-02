@@ -4,16 +4,11 @@
 //  - Aptabase (cookieless, nothing stored) is sent with one fetch to its documented HTTP endpoint: no third-party script.
 //  - Google Analytics loads ONLY after the visitor presses Accept (consent mode defaults to denied first).
 //  - Only coarse events are sent. Never editor content. See docs/.research/site-analytics-2026-10-02.md.
+import { ANALYTICS } from "./config";
 
-/** The one place the identifiers live. They are public client-side identifiers, not secrets. */
-export const ANALYTICS = {
-  aptabaseKey: "A-EU-4289711788",
-  aptabaseUrl: "https://eu.aptabase.com/api/v0/event", // the EU region of the App Key
-  gaId: "G-CSHX6YP98W",
-  consentKey: "ratm-site-consent",
-};
+export type Consent = "granted" | "denied" | null;
 
-const safe = <T,>(fn: () => T, fallback?: T): T | undefined => {
+const safe = <T,>(fn: () => T, fallback: T): T => {
   try {
     return fn();
   } catch {
@@ -22,15 +17,26 @@ const safe = <T,>(fn: () => T, fallback?: T): T | undefined => {
 };
 
 /** True when the browser asks not to be tracked (Do Not Track or Global Privacy Control). */
-export function trackingBlocked() {
-  return safe(
-    () => navigator.doNotTrack === "1" || (window as Window & { doNotTrack?: string }).doNotTrack === "1" || (navigator as Navigator & { msDoNotTrack?: string }).msDoNotTrack === "1" || (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true,
-    false,
-  );
+export function trackingBlocked(): boolean {
+  return safe(() => {
+    const n = navigator as Navigator & { msDoNotTrack?: string; globalPrivacyControl?: boolean };
+    return n.doNotTrack === "1" || (window as Window & { doNotTrack?: string }).doNotTrack === "1" || n.msDoNotTrack === "1" || n.globalPrivacyControl === true;
+  }, false);
 }
 
-export const getConsent = (): string | null => safe(() => localStorage.getItem(ANALYTICS.consentKey), null) ?? null;
-const setConsent = (v: string) => safe(() => localStorage.setItem(ANALYTICS.consentKey, v));
+export function getConsent(): Consent {
+  const v = safe(() => localStorage.getItem(ANALYTICS.consentKey), null);
+  return v === "granted" || v === "denied" ? v : null;
+}
+
+// A tiny external store, so the banner and the Privacy page re-render when the choice changes.
+const listeners = new Set<() => void>();
+let choice: Consent | undefined;
+export const subscribeConsent = (fn: () => void) => (listeners.add(fn), () => void listeners.delete(fn));
+export function consentSnapshot(): Consent {
+  if (choice === undefined) choice = getConsent();
+  return choice;
+}
 
 let session: string | null = null;
 let last = 0;
@@ -44,22 +50,24 @@ function sessionId() {
 
 /** Sends one coarse event. `props` must be short strings or numbers, never editor content. */
 export function track(name: string, props?: Record<string, string | number>) {
-  if (trackingBlocked()) return;
+  if (typeof window === "undefined" || trackingBlocked()) return;
   const local = ["localhost", "127.0.0.1", "[::1]"].includes(location.hostname);
-  safe(() =>
-    fetch(ANALYTICS.aptabaseUrl, {
-      method: "POST",
-      credentials: "omit",
-      keepalive: true,
-      headers: { "Content-Type": "application/json", "App-Key": ANALYTICS.aptabaseKey },
-      body: JSON.stringify({
-        timestamp: new Date().toISOString(),
-        sessionId: sessionId(),
-        eventName: name,
-        systemProps: { locale: navigator.language, isDebug: local, appVersion: "", sdkVersion: "inline-http@1" },
-        props,
-      }),
-    }).catch(() => undefined),
+  safe(
+    () =>
+      fetch(ANALYTICS.aptabaseUrl, {
+        method: "POST",
+        credentials: "omit",
+        keepalive: true,
+        headers: { "Content-Type": "application/json", "App-Key": ANALYTICS.aptabaseKey },
+        body: JSON.stringify({
+          timestamp: new Date().toISOString(),
+          sessionId: sessionId(),
+          eventName: name,
+          systemProps: { locale: navigator.language, isDebug: local, appVersion: "", sdkVersion: "inline-http@1" },
+          props,
+        }),
+      }).catch(() => undefined),
+    undefined,
   );
 }
 
@@ -84,60 +92,29 @@ function loadGoogle() {
   document.head.append(s);
 }
 
-function banner() {
-  let el: HTMLElement | null = document.getElementById("consent-banner");
-  if (el) return el;
-  el = document.createElement("div");
-  el.id = "consent-banner";
-  el.setAttribute("role", "region");
-  el.setAttribute("aria-label", "Analytics consent");
-  el.innerHTML =
-    '<p id="consent-text">This demo site counts visits with Aptabase, which is cookieless. May it also use Google Analytics, which sets cookies? ' +
-    'The npm package itself collects nothing. <a data-privacy-link href="#">Privacy</a></p>' +
-    '<div class="consent-actions"><button type="button" class="btn small" data-consent="granted">Accept</button>' +
-    '<button type="button" class="btn small secondary" data-consent="denied">Decline</button></div>';
-  el.querySelector("[data-privacy-link]")!.setAttribute("href", (process.env.NEXT_PUBLIC_BASE_PATH ?? "") + "/privacy/");
-  document.body.append(el);
-  return el;
-}
-
-export function reflect() {
-  const c = getConsent();
-  const out = document.getElementById("consent-status");
-  if (out) {
-    out.textContent = trackingBlocked()
-      ? "Your browser sends Do Not Track or Global Privacy Control, so no analytics run at all."
-      : c === "granted"
-        ? "Google Analytics is on (you accepted)."
-        : c === "denied"
-          ? "Google Analytics is off (you declined)."
-          : "Google Analytics is off until you choose.";
-  }
-  for (const b of document.querySelectorAll("[data-consent]")) b.setAttribute("aria-pressed", String(b.getAttribute("data-consent") === c));
-}
-
-function choose(value: string) {
-  setConsent(value);
-  document.getElementById("consent-banner")?.remove();
+/** Records the visitor's choice. Granting loads Google Analytics; declining never does. */
+export function choose(value: "granted" | "denied") {
+  safe(() => localStorage.setItem(ANALYTICS.consentKey, value), undefined);
+  choice = value;
   if (value === "granted") loadGoogle();
-  reflect();
+  listeners.forEach((l) => l());
 }
 
-/** Call once per page. */
-export function initAnalytics() {
-  document.addEventListener("click", (e) => {
-    const t = e.target instanceof Element ? e.target : null;
-    const c = t?.closest("[data-consent]");
-    if (c) return choose(String(c.getAttribute("data-consent")));
-    const copy = t?.closest("[data-copy]");
-    if (copy) track("copy_snippet", { target: String(copy.getAttribute("data-copy")).replace(/^#/, "").slice(0, 40) });
-    const a = t?.closest("a[href]");
-    if (a instanceof HTMLAnchorElement && a.host !== location.host && /(^|\.)(github\.com|npmjs\.com)$/.test(a.hostname)) track("outbound_click", { host: a.hostname });
-  });
-  reflect();
-  if (trackingBlocked()) return;
-  track("page_view", { path: location.pathname.replace(process.env.NEXT_PUBLIC_BASE_PATH ?? "", "") || "/" });
+let started = false;
+/** Call once per page load (the layout's <Analytics /> does). Returns whether the consent banner should be offered. */
+export function startAnalytics(path: string): boolean {
+  if (started) return false;
+  started = true;
+  if (trackingBlocked()) return false;
+  track("page_view", { path });
   const c = getConsent();
   if (c === "granted") loadGoogle();
-  else if (c !== "denied") banner();
+  return c === null;
+}
+
+/** Delegated clicks: copy buttons and links out to GitHub or npm (the host only). */
+export function onDocumentClick(e: MouseEvent) {
+  const t = e.target instanceof Element ? e.target : null;
+  const a = t?.closest("a[href]");
+  if (a instanceof HTMLAnchorElement && a.host !== location.host && /(^|\.)(github\.com|npmjs\.com)$/.test(a.hostname)) track("outbound_click", { host: a.hostname });
 }

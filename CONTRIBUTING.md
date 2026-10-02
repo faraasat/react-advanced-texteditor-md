@@ -48,10 +48,11 @@ core publishes a new patch.
 | `npm run size` | Gzip budget of the wrapper |
 | `npm run check:next` | Imports the built entries in Node with no DOM |
 | `npm run test:e2e` | Builds the esbuild example (`example/`) and runs Playwright (Chromium, desktop and mobile) |
-| `npm run site:install` | Installs the demo site's dependencies (`site/`) |
+| `npm run site:install` | Installs the demo site's dependencies (`site/`). While the core is not on npm yet it installs it from the sibling checkout (`../advanced-texteditor-md`, built) |
 | `npm run site:build` | Builds the Next.js static export into `site/out/` |
 | `npm run site:serve` | Serves it under its GitHub Pages base path |
-| `npm run test:site` | Smoke-tests the built site |
+| `npm run test:site` | Tests the built site under its base path: behaviour, no 404s, consent and Do Not Track, axe in light and dark |
+| `npm run site:screenshots` | Regenerates `github-imgs/` from the built site (each PNG under 200 kB) |
 
 Playwright needs Chromium once: `npx playwright install chromium`.
 
@@ -67,7 +68,7 @@ Playwright needs Chromium once: `npx playwright install chromium`.
 
 ## The demo site
 
-`site/` is a Next.js App Router app (static export, Tailwind v4). Each demo is one file in `site/src/demos/`, and the code shown next
+`site/` is a Next.js App Router app (static export; Tailwind v4 is there only for the Tailwind demo). Each demo is one file in `site/src/demos/`, and the code shown next
 to it is that same file read at build time, so the snippet cannot drift from what runs. The site installs this package as a copy of
 what `npm pack` would publish (`site/.npmrc`: `install-links=true`), so run `npm run build` first. The site's analytics are
 described in the README's Privacy section; nothing in `src/` or `dist/` ever calls out.

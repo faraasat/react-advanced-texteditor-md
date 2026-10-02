@@ -42,6 +42,7 @@ jobs:
           npm run site:install
           npm run site:build
 
+      # Behaviour, no 404 under the base path, consent and Do Not Track, and axe in light and dark (Chromium desktop + mobile).
       - name: Test the demo site under its project-pages base path
         run: npm run test:site
 

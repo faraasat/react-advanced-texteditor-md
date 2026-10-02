@@ -6,7 +6,7 @@ import { searchPeople } from "@/lib/people"; // a fake directory; yours would ca
 export function MentionsDemo() {
   const [ids, setIds] = useState<string[]>(["u01"]);
   return (
-    <div className="space-y-3">
+    <>
       <MarkdownEditor
         defaultValue="Ping [@Ada Lovelace](mention:staff/u01?legacy=100) and type @ for more."
         layout="minimal"
@@ -17,9 +17,9 @@ export function MentionsDemo() {
         chips={[{ scheme: "mention", kinds: { staff: { color: 3, label: "Staff" }, guest: { color: 6, label: "Guest" } } }]}
         onMentionsChange={(chips) => setIds(chips.map((c) => c.id))}
       />
-      <p className="text-sm text-muted" data-testid="mention-ids">
+      <p className="fcard__hint" data-testid="mention-ids">
         Mentioned: {ids.length ? ids.join(", ") : "nobody yet"}
       </p>
-    </div>
+    </>
   );
 }

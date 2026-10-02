@@ -3,7 +3,7 @@ import { MarkdownEditor } from "react-advanced-texteditor-md";
 
 // app/globals.css:
 //   @import "tailwindcss";
-//   @import "advanced-texteditor-md/style.css";
+//   @import "advanced-texteditor-md/style.css";      <- add `layer(components)` if a utility below does not win
 //   @import "advanced-texteditor-md/tailwind.css";   <- maps --atm-* onto bg-atm-surface, text-atm-fg, border-atm-border, ...
 export function TailwindDemo() {
   return (

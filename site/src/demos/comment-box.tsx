@@ -12,19 +12,19 @@ export function CommentBoxDemo() {
     ref.current?.setValue("");
   };
   return (
-    <div className="space-y-3">
-      <ul className="space-y-2" data-testid="comments">
+    <>
+      <ul className="comments" data-testid="comments">
         {comments.map((c, i) => (
-          <li key={i} className="rounded-lg border border-line bg-panel-2 p-2">
+          <li key={i}>
             <MarkdownView markdown={c} />
           </li>
         ))}
       </ul>
       <MarkdownEditor ref={ref} layout="bottom-bar" placeholder="Reply... (Ctrl or Cmd + Enter sends)" minHeight={72} maxHeight={160} aria-label="Reply" onSubmit={send}>
-        <button type="button" onClick={() => send(ref.current?.getValue() ?? "")} className="rounded-md bg-brand px-3 py-1 text-sm font-semibold text-brand-ink">
+        <button type="button" className="btn btn--primary btn--sm" onClick={() => send(ref.current?.getValue() ?? "")}>
           Send
         </button>
       </MarkdownEditor>
-    </div>
+    </>
   );
 }

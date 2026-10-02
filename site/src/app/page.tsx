@@ -1,172 +1,175 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-import { gzipSync } from "node:zlib";
-import Link from "next/link";
+import { Code } from "@/components/code";
+import { DataTable, Faq, FeatureGrid, Roadmap, Shortcuts } from "@/components/blocks";
 import { DemoCard } from "@/components/demo-card";
-import { CopyButton } from "@/components/copy-button";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { Hero } from "@/components/hero";
+import { InstallTabs } from "@/components/install-tabs";
+import { Playground } from "@/components/playground";
+import { Section } from "@/components/section";
 import { ControlledDemo } from "@/demos/controlled";
-import { UncontrolledDemo } from "@/demos/uncontrolled";
-import { ViewDemo } from "@/demos/view";
-import { ServerViewDemo } from "@/demos/server-view";
+import { CommentBoxDemo } from "@/demos/comment-box";
 import { HeadlessDemo } from "@/demos/headless";
 import { MentionsDemo } from "@/demos/mentions";
-import { UploadsDemo } from "@/demos/uploads";
 import { PluginsDemo } from "@/demos/plugins";
-import { ThemingDemo } from "@/demos/theming";
+import { ServerViewDemo } from "@/demos/server-view";
 import { TailwindDemo } from "@/demos/tailwind";
-import { CommentBoxDemo } from "@/demos/comment-box";
+import { ThemingDemo } from "@/demos/theming";
+import { UncontrolledDemo } from "@/demos/uncontrolled";
+import { UploadsDemo } from "@/demos/uploads";
+import { ViewDemo } from "@/demos/view";
+import { COMPARE_HEAD, COMPARE_NOTE, COMPARE_ROWS, FAQS, KEYS, ROADMAP, SUPPORT_HEAD, SUPPORT_ROWS, TILES } from "@/lib/content";
+import { gzipKb, readVersion } from "@/lib/facts";
 
-const REPO = "faraasat/react-advanced-texteditor-md";
-const CORE = "faraasat/advanced-texteditor-md";
+const VITE = `import { useState } from "react";
+import { MarkdownEditor } from "react-advanced-texteditor-md";
+import "advanced-texteditor-md/style.css"; // the editor's stylesheet: import it once, anywhere
 
-/** gzip size of a built file of the wrapper, measured now. Null when the file cannot be read. */
-function gzipKb(file: string): string | null {
-  try {
-    const buf = readFileSync(join(process.cwd(), "node_modules/react-advanced-texteditor-md/dist", file));
-    return (gzipSync(buf, { level: 9 }).length / 1024).toFixed(1);
-  } catch {
-    return null;
-  }
+export function Comment() {
+  const [markdown, setMarkdown] = useState("# Hello\\n\\nWrite **Markdown** visually.");
+  return <MarkdownEditor value={markdown} onChange={setMarkdown} placeholder="Write something..." minHeight={160} />;
+}`;
+
+const NEXT = `// app/page.tsx  (a Server Component: no "use client" needed here)
+import { MarkdownView } from "react-advanced-texteditor-md/view"; // server-safe renderer
+import { Composer } from "./composer";
+
+export default async function Page() {
+  const post = await loadPost();
+  return (
+    <>
+      <MarkdownView markdown={post.body} />
+      <Composer initial={post.draft} />
+    </>
+  );
 }
 
-const NAV = [
-  ["controlled", "Controlled"],
-  ["uncontrolled", "Uncontrolled"],
-  ["view", "MarkdownView"],
-  ["server", "Server rendering"],
-  ["headless", "Hook"],
-  ["mentions", "Mentions"],
-  ["uploads", "Uploads"],
-  ["plugins", "Plugins"],
-  ["theming", "Theming"],
-  ["tailwind", "Tailwind v4"],
-  ["comments", "Comment box"],
-] as const;
+// app/composer.tsx
+"use client"; // handlers are functions, so the component that passes them is a Client Component
+import { useState } from "react";
+import { MarkdownEditor } from "react-advanced-texteditor-md";
+
+export function Composer({ initial }: { initial: string }) {
+  const [md, setMd] = useState(initial);
+  return <MarkdownEditor value={md} onChange={setMd} />;
+}`;
 
 export default function Page() {
+  const version = readVersion();
   const main = gzipKb("index.mjs");
   const view = gzipKb("view.mjs");
   return (
     <>
-      <a href="#main" className="absolute -top-14 left-2 z-50 rounded-md border-2 border-brand bg-panel px-3 py-2 focus:top-2">
-        Skip to the content
-      </a>
-      <header className="sticky top-0 z-40 border-b border-line bg-page/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2">
-          <a href="#top" className="inline-flex items-center gap-2 font-bold tracking-tight text-ink no-underline">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/favicon.svg`} alt="" width={24} height={24} />
-            react-advanced-texteditor-md
-          </a>
-          <nav aria-label="Main" className="ml-auto flex items-center gap-1 text-sm">
-            <a className="hidden rounded-md px-2 py-1 text-muted no-underline hover:bg-panel-2 hover:text-ink sm:inline" href="#demos">
-              Demos
-            </a>
-            <a className="hidden rounded-md px-2 py-1 text-muted no-underline hover:bg-panel-2 hover:text-ink sm:inline" href={`https://github.com/${REPO}#readme`}>
-              Docs
-            </a>
-            <a className="hidden rounded-md px-2 py-1 text-muted no-underline hover:bg-panel-2 hover:text-ink sm:inline" href={`https://github.com/${REPO}`}>
-              GitHub
-            </a>
-            <a className="hidden rounded-md px-2 py-1 text-muted no-underline hover:bg-panel-2 hover:text-ink sm:inline" href="https://www.npmjs.com/package/react-advanced-texteditor-md">
-              npm
-            </a>
-            <ThemeToggle />
-          </nav>
-        </div>
-      </header>
+      <Hero
+        eyebrow={`React bindings · v${version} · MIT`}
+        title={
+          <>
+            A React editor that <em>stores Markdown.</em>
+          </>
+        }
+        sub={
+          <>
+            <code>&lt;MarkdownEditor /&gt;</code> (controlled or uncontrolled), <code>&lt;MarkdownView /&gt;</code> that renders as real React elements and works in Server Components, and hooks. Built on{" "}
+            <a href="https://faraasat.github.io/advanced-texteditor-md/">advanced-texteditor-md</a>.
+          </>
+        }
+        install="react-advanced-texteditor-md"
+        badges={[
+          { k: "npm", v: `v${version}`, accent: true },
+          { k: "wrapper", v: main ? `${main} kB gzip` : "small" },
+          ...(view ? [{ k: "server view", v: `${view} kB gzip` }] : []),
+          { k: "react", v: "17 to 19" },
+          { k: "license", v: "MIT" },
+        ]}
+        extraLink={{ label: "Core editor", href: "https://faraasat.github.io/advanced-texteditor-md/" }}
+      />
 
-      <main id="main" className="mx-auto max-w-6xl px-4 pb-16">
-        <section id="top" className="py-12 sm:py-16">
-          <p className="mb-2 text-xs font-bold tracking-widest text-muted uppercase">React bindings · MIT</p>
-          <h1 className="text-4xl leading-tight font-extrabold tracking-tight sm:text-5xl">
-            A React editor that
-            <br />
-            <span className="text-brand">stores Markdown.</span>
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg text-muted">
-            <code className="font-mono text-[0.95em]">&lt;MarkdownEditor /&gt;</code> (controlled or uncontrolled),{" "}
-            <code className="font-mono text-[0.95em]">&lt;MarkdownView /&gt;</code> that renders as real React elements and works in Server Components, and hooks. Built on{" "}
-            <a href={`https://github.com/${CORE}`}>advanced-texteditor-md</a>.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            <a href="#demos" className="rounded-lg bg-brand px-4 py-2 font-semibold text-brand-ink no-underline">
-              See the demos
-            </a>
-            <a href={`https://github.com/${REPO}`} className="rounded-lg border border-line bg-panel px-4 py-2 font-semibold text-ink no-underline">
-              GitHub
-            </a>
-          </div>
-          <div className="mt-5 inline-flex max-w-full items-center gap-3 rounded-xl border border-line bg-code py-2 pr-2 pl-4">
-            <code id="install-cmd" className="overflow-x-auto font-mono text-sm whitespace-nowrap">
-              npm i react-advanced-texteditor-md
-            </code>
-            <CopyButton text="npm i react-advanced-texteditor-md" />
-          </div>
-          <ul className="mt-5 flex flex-wrap gap-2 text-sm text-muted" aria-label="Facts">
-            {main ? <li className="rounded-full border border-line bg-panel px-3 py-1">Wrapper <b className="text-ink">{main} kB</b> gzip</li> : null}
-            {view ? <li className="rounded-full border border-line bg-panel px-3 py-1">Server renderer <b className="text-ink">{view} kB</b> gzip</li> : null}
-            <li className="rounded-full border border-line bg-panel px-3 py-1">React 17 to 19</li>
-            <li className="rounded-full border border-line bg-panel px-3 py-1">StrictMode and SSR safe</li>
-          </ul>
-          <nav aria-label="Demos" className="mt-8 flex flex-wrap gap-1.5 text-sm">
-            {NAV.map(([id, label]) => (
-              <a key={id} href={`#${id}`} className="rounded-full border border-line bg-panel px-3 py-1 text-ink no-underline hover:bg-panel-2">
-                {label}
-              </a>
-            ))}
-          </nav>
-        </section>
+      <Section id="playground" title="Playground" sub={<>The real <code>&lt;MarkdownEditor /&gt;</code>, controlled, with every layout, theme and mode. Type <kbd>@</kbd> to mention someone, <kbd>/</kbd> for blocks. The output tabs show what is stored, the HTML, the same Markdown through <code>MarkdownView</code>, and the JSX you would write.</>}>
+        <Playground />
+      </Section>
 
-        <div id="demos" className="space-y-2">
-          <DemoCard id="controlled" title="Controlled" file="controlled.tsx" note={<>You own the string. <code>onChange</code> fires for edits the user makes, never for <code>value</code> updates, so state echoing back cannot loop and undo keeps working.</>}>
+      <Section id="why" title="What you get" sub="Correct React semantics on top of a small, dependency-free editor.">
+        <FeatureGrid items={TILES} />
+      </Section>
+
+      <Section id="demos" title="Demos, live" sub="Each card is a real component with the exact source beside it: the code panel is the demo's own file, read at build time, so it cannot drift from what runs.">
+        <div className="feat">
+          <DemoCard id="controlled" icon="pen" title="Controlled" file="controlled.tsx" note={<>You own the string. <code>onChange</code> fires for edits the user makes, never for <code>value</code> updates, so state echoing back cannot loop and undo keeps working.</>}>
             <ControlledDemo />
           </DemoCard>
-          <DemoCard id="uncontrolled" title="Uncontrolled, with a ref" file="uncontrolled.tsx" note={<>Give it a <code>defaultValue</code> and let it own the document. The <code>ref</code> is the core&apos;s full editor API, as one object that never changes identity.</>}>
+          <DemoCard id="uncontrolled" icon="hook" title="Uncontrolled, with a ref" file="uncontrolled.tsx" note={<>Give it a <code>defaultValue</code> and let it own the document. The <code>ref</code> is the core&apos;s full editor API, as one object that never changes identity.</>}>
             <UncontrolledDemo />
           </DemoCard>
-          <DemoCard id="view" title="MarkdownView" file="view.tsx" note={<>Renders Markdown as React elements, not an HTML string. Each block is memoised, so editing one paragraph re-renders one paragraph.</>}>
+          <DemoCard id="view" icon="eye" title="MarkdownView" file="view.tsx" note={<>Renders Markdown as React elements, not an HTML string. Each block is memoised, so editing one paragraph re-renders one paragraph.</>}>
             <ViewDemo />
           </DemoCard>
-          <DemoCard id="server" title="Server rendering" badge="Server Component" file="server-view.tsx" note={<><code>react-advanced-texteditor-md/view</code> has no hooks, so a Server Component can render it. This block was rendered once, at build time, and ships no editor code.</>}>
+          <DemoCard id="server" icon="server" title="Server rendering" file="server-view.tsx" note={<><code>react-advanced-texteditor-md/view</code> has no hooks, so a Server Component can render it. This block was rendered once, at build time, and ships no editor code.</>}>
             <ServerViewDemo />
           </DemoCard>
-          <DemoCard id="headless" title="useMarkdownEditor (headless)" file="headless.tsx" note={<>For layouts the component does not give you: attach the <code>ref</code> where the editor should mount and draw everything else yourself.</>}>
+          <DemoCard id="headless" icon="code" title="useMarkdownEditor (headless)" file="headless.tsx" note={<>For layouts the component does not give you: attach the <code>ref</code> where the editor should mount and draw everything else yourself.</>}>
             <HeadlessDemo />
           </DemoCard>
-          <DemoCard id="mentions" title="Mentions with badges and colours" file="mentions.tsx" note={<>Type <kbd>@</kbd>. Each kind gets a colour and a badge; the stored form is <code>[@Name](mention:kind/id?refs)</code>.</>}>
+          <DemoCard id="mentions" icon="at" title="Mentions with badges and colours" file="mentions.tsx" note={<>Type <kbd>@</kbd>. Each kind gets a colour and a badge; the stored form is <code>[@Name](mention:kind/id?refs)</code>.</>}>
             <MentionsDemo />
           </DemoCard>
-          <DemoCard id="uploads" title="Uploads with allow and deny lists" file="uploads.tsx" note={<>Files are validated (size, count, extension, MIME) before the handler runs. Nothing leaves the page here: the uploader stores files in memory.</>}>
+          <DemoCard id="uploads" icon="upload" title="Uploads with allow and deny lists" file="uploads.tsx" note={<>Files are validated (size, count, extension, MIME) before the handler runs. Nothing leaves the page here: the uploader stores files in memory.</>}>
             <UploadsDemo />
           </DemoCard>
-          <DemoCard id="plugins" title="Plugins and custom syntax" file="plugins.tsx" note={<>Ready-made plugins from the core, one written in a few lines, and an inline syntax of your own (<code>||spoiler||</code>).</>}>
+          <DemoCard id="plugins" icon="plug" title="Plugins and custom syntax" file="plugins.tsx" note={<>Ready-made plugins from the core, one written in a few lines, and an inline syntax of your own (<code>||spoiler||</code>).</>}>
             <PluginsDemo />
           </DemoCard>
-          <DemoCard id="theming" title="Theming" file="theming.tsx" note={<>Five themes through <code>data-atm-theme</code>, or tokens through the <code>theme</code> prop. Both change in place: the editor is not rebuilt.</>}>
+          <DemoCard id="theming" icon="palette" title="Theming" file="theming.tsx" note={<>Five themes through <code>data-atm-theme</code>, or tokens through the <code>theme</code> prop. Both change in place: the editor is not rebuilt.</>}>
             <ThemingDemo />
           </DemoCard>
-          <DemoCard id="tailwind" title="Tailwind v4" file="tailwind.tsx" note={<>This whole page is Tailwind v4. The core&apos;s bridge maps the editor&apos;s variables onto theme tokens, and every slot takes utilities through <code>classNames</code>.</>}>
+          <DemoCard id="tailwind" icon="wind" title="Tailwind v4" file="tailwind.tsx" note={<>The core&apos;s bridge maps the editor&apos;s variables onto theme tokens, and every slot takes utilities through <code>classNames</code>. This card is styled that way.</>}>
             <TailwindDemo />
           </DemoCard>
-          <DemoCard id="comments" title="Comment box" file="comment-box.tsx" note={<>The <code>bottom-bar</code> layout has an actions slot. React children are portalled into it, so state, context and events just work.</>}>
+          <DemoCard id="comments" icon="chat" title="Comment box" file="comment-box.tsx" note={<>The <code>bottom-bar</code> layout has an actions slot. React children are portalled into it, so state, context and events just work.</>}>
             <CommentBoxDemo />
           </DemoCard>
         </div>
-      </main>
+      </Section>
 
-      <footer className="border-t border-line py-8 text-sm text-muted">
-        <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 px-4">
-          <span>
-            MIT licensed. Made by <a href="https://github.com/faraasat">Farasat Ali</a>.
-          </span>
-          <span>
-            <a href={`https://github.com/${REPO}`}>Source</a> · <a href="https://www.npmjs.com/package/react-advanced-texteditor-md">npm</a> ·{" "}
-            <a href={`https://github.com/${REPO}/issues`}>Issues</a> · <a href={`https://github.com/${CORE}`}>Core editor</a> · <Link href="/privacy/">Privacy</Link>
-          </span>
+      <Section id="install" title="Install" sub={<><code>advanced-texteditor-md</code> is a regular dependency and installs with it. <code>react</code> and <code>react-dom</code> (17 or newer) are peer dependencies.</>}>
+        <div className="grid grid--2">
+          <div className="card">
+            <h3>Add it</h3>
+            <p className="sub">The stylesheet is not bundled into this package, so it is never shipped twice: import the core&apos;s once.</p>
+            <InstallTabs packages="react-advanced-texteditor-md" label="Install the React bindings" />
+          </div>
+          <div className="card">
+            <h3>Vite, or any bundler</h3>
+            <p className="sub">Import the stylesheet once, anywhere.</p>
+            <Code language="tsx" label="comment.tsx" copyTarget="quick-start-vite">
+              {VITE}
+            </Code>
+          </div>
         </div>
-      </footer>
+        <div style={{ marginTop: 16 }}>
+          <Code language="tsx" label="next-app-router.tsx" copyTarget="quick-start-next">
+            {NEXT}
+          </Code>
+        </div>
+      </Section>
+
+      <Section id="shortcuts" title="Keyboard shortcuts" sub={<><kbd>Mod</kbd> is <kbd>Cmd</kbd> on macOS and <kbd>Ctrl</kbd> elsewhere. They are the core editor&apos;s, so every binding can be overridden with <code>keymap</code>.</>}>
+        <Shortcuts groups={KEYS} />
+      </Section>
+
+      <Section id="compare" title="Size and how it compares" sub="The wrapper is small because the editor is the core's separate, lazily loaded download.">
+        <DataTable caption="Size of each piece" head={COMPARE_HEAD} rows={COMPARE_ROWS} />
+        <p className="note">{COMPARE_NOTE}</p>
+      </Section>
+
+      <Section id="browsers" title="Browser and React support" sub="The wrapper adds no browser requirement of its own: it needs what the core editor needs, and React 17 or newer.">
+        <DataTable caption="Support matrix" head={SUPPORT_HEAD} rows={SUPPORT_ROWS} />
+      </Section>
+
+      <Section id="roadmap" title="Roadmap and known gaps" sub="An honest list, taken from the README.">
+        <Roadmap items={ROADMAP} />
+      </Section>
+
+      <Section id="faq" title="FAQ">
+        <Faq items={FAQS} />
+      </Section>
     </>
   );
 }

@@ -1,3 +1,4 @@
+import { resolve } from "node:path";
 import type { NextConfig } from "next";
 
 // GitHub Pages serves this project from /<repo>, and has no Node runtime, so the demo is a fully static export.
@@ -11,6 +12,8 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   images: { unoptimized: true },
   env: { NEXT_PUBLIC_BASE_PATH: basePath },
+  // The demos read their own source (src/demos) and the docs read README.md and CHANGELOG.md from the repository root.
+  turbopack: { root: resolve(process.cwd(), "..") },
 };
 
 export default nextConfig;

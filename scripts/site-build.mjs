@@ -5,7 +5,9 @@
 //   SITE_BASE=/ npm run site:build                                  (served from a domain root)
 //
 // The site installs this package as a COPY of what `npm pack` would publish (site/.npmrc: install-links), so it needs
-// `npm run build` first and `npm run site:install` once. Output is fully static and makes no external request.
+// `npm run build` first and `npm run site:install` once. The README, the CHANGELOG and the demos' own source are read from
+// this checkout at build time. Output is fully static; the only requests the page makes to other origins are the opt-in
+// analytics ones (see docs/.research/site-analytics-2026-10-02.md).
 import { spawnSync } from "node:child_process";
 import { existsSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -27,11 +29,7 @@ let base = process.env.SITE_BASE ?? "/react-advanced-texteditor-md/";
 if (!base.startsWith("/")) base = "/" + base;
 const basePath = base === "/" ? "" : base.replace(/\/$/, "");
 
-const r = spawnSync("npx", ["next", "build"], {
-  cwd: site,
-  stdio: "inherit",
-  env: { ...process.env, NEXT_PUBLIC_BASE_PATH: basePath },
-});
+const r = spawnSync("npx", ["next", "build"], { cwd: site, stdio: "inherit", env: { ...process.env, NEXT_PUBLIC_BASE_PATH: basePath } });
 if (r.status !== 0) process.exit(r.status ?? 1);
 
 // GitHub Pages runs Jekyll unless told not to, and Jekyll drops directories that start with an underscore (_next).

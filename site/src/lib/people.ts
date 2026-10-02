@@ -31,3 +31,6 @@ export function searchPeople(query: string, { signal }: { signal: AbortSignal })
     });
   });
 }
+
+/** Colour and badge per kind of mention. */
+export const CHIPS = [{ scheme: "mention", kinds: { staff: { color: 3, label: "Staff" }, guest: { color: 6, label: "Guest" } } }];

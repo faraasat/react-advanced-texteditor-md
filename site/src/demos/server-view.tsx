@@ -21,15 +21,17 @@ export const add = (a: number, b: number): number => a + b; // 0 kB of JS for th
 export function ServerViewDemo() {
   const builtAt = new Date().toISOString();
   return (
-    <div className="space-y-2">
-      <MarkdownView
-        markdown={POST}
-        highlight={highlighter}
-        chips={[{ scheme: "mention", kinds: { staff: { color: 3, label: "Staff" }, guest: { color: 6, label: "Guest" } } }]}
-      />
-      <p className="text-xs text-muted" data-testid="built-at">
+    <>
+      <div className="viewbox">
+        <MarkdownView
+          markdown={POST}
+          highlight={highlighter}
+          chips={[{ scheme: "mention", kinds: { staff: { color: 3, label: "Staff" }, guest: { color: 6, label: "Guest" } } }]}
+        />
+      </div>
+      <p className="fcard__hint" data-testid="built-at">
         Rendered at build time: <time dateTime={builtAt}>{builtAt}</time>
       </p>
-    </div>
+    </>
   );
 }

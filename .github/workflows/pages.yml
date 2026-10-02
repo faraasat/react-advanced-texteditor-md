@@ -1,7 +1,8 @@
 name: Deploy site to GitHub Pages
 
-# Pages source: "GitHub Actions" (build_type: workflow). Needs no secrets. The site installs the PUBLISHED core from npm,
-# so this workflow fails until `advanced-texteditor-md` is published.
+# Pages source: "GitHub Actions" (build_type: workflow). Needs no secrets. The site (a Next.js static export in site/) installs the
+# PUBLISHED core from npm, so this workflow fails with E404 until `advanced-texteditor-md` is published. Locally,
+# `npm run site:install` falls back to a tarball of the sibling checkout, which CI does not have.
 on:
   push:
     branches: [main]
@@ -35,6 +36,7 @@ jobs:
           npm install
           npm run build
 
+      # Installs the core from the registry, and this package as a copy of what `npm pack` would publish (site/.npmrc).
       - name: Install site dependencies
         run: npm run site:install
 
