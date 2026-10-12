@@ -185,6 +185,12 @@ describe("callbacks and structural options", () => {
     expect(editors).toHaveLength(1);
   });
 
+  it("passes toolbar.position through, including the vertical positions of the core 0.4 line", () => {
+    // `as never`: the installed core's types may predate "left" / "right"; the wrapper does not narrow them.
+    render(<MarkdownEditor defaultValue="x" toolbar={{ position: "left" } as never} />);
+    expect(current().options.toolbar).toEqual({ position: "left" });
+  });
+
   it("a changed plugin name or array content recreates", () => {
     const { rerender } = render(<MarkdownEditor plugins={[{ name: "a" }]} />);
     rerender(<MarkdownEditor plugins={[{ name: "b" }]} />);
