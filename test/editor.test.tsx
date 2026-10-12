@@ -186,8 +186,7 @@ describe("callbacks and structural options", () => {
   });
 
   it("passes toolbar.position through, including the vertical positions of the core 0.4 line", () => {
-    // `as never`: the installed core's types may predate "left" / "right"; the wrapper does not narrow them.
-    render(<MarkdownEditor defaultValue="x" toolbar={{ position: "left" } as never} />);
+    render(<MarkdownEditor defaultValue="x" toolbar={{ position: "left" }} />);
     expect(current().options.toolbar).toEqual({ position: "left" });
   });
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 - 2026-10-13
+
+### Changed
+- Requires `advanced-texteditor-md` ^0.4.1: `toolbar={{ position: "left" }}` (or `"right"`) draws a vertical toolbar beside the editor in the classic, bottom-bar, compact, document, minimal and split layouts. The prop already passed through; its type now accepts the new positions.
+
 ## 0.3.2 - 2026-10-03
 
 ### Changed
